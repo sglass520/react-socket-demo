@@ -7,6 +7,8 @@ export const CANVAS_SIZE = [window.innerWidth, window.innerHeight - 200];
 export const MIN_CIRCLE_SIZE = 30;
 export const MAX_CIRCLE_SIZE = 75;
 
+export const NAME_MAX_LENGTH = 8;
+
 export const COLOR_ARRAY = [
   "#FF6633",
   "#FFB399",

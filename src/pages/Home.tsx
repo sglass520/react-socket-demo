@@ -5,8 +5,11 @@ import {
   IonTitle,
   IonToolbar,
   IonButton,
+  IonPopover,
+  IonInput,
 } from "@ionic/react";
 import React, { useEffect, useState, useRef } from "react";
+import { useForm } from "react-hook-form";
 import "./Home.css";
 
 import {
@@ -16,12 +19,14 @@ import {
   MIN_CIRCLE_SIZE,
   MAX_CIRCLE_SIZE,
   UPDATE_CLIENT_TIME,
+  NAME_MAX_LENGTH,
 } from "../constants";
 import uuid from "uuid";
 import socketIOClient from "socket.io-client";
 
 interface ClientProperties {
   uid: string;
+  name: string;
   posX: number;
   posY: number;
   size: number;
@@ -31,6 +36,7 @@ interface ClientProperties {
 
 const IState = {
   uid: "",
+  name: "client",
   posX: 0,
   posY: 0,
   size: 0,
@@ -41,13 +47,24 @@ const IState = {
 const Home: React.FC = () => {
   const [response, setResponse] = useState<any>();
   const [getTouches, setTouches] = useState<any>();
+  const [clientName, setClientName] = useState<string>("");
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
   const [socket, setSocket] = useState<SocketIOClient.Socket>();
   const [getMouseDown, setMouseDown] = useState<boolean>(false);
+  const [serverClients, setServerClients] = useState<any>(undefined);
   const [clientCircle, setClientCircle] = useState<ClientProperties>(IState);
+  const [submitDisabled, setSubmitDisabled] = useState<boolean>(true);
+
+  const { register, handleSubmit, setValue } = useForm();
+
+  const disableRef = useRef(submitDisabled);
+  disableRef.current = submitDisabled;
 
   const clientRef = useRef(clientCircle);
   clientRef.current = clientCircle;
+
+  const serverRef = useRef(serverClients);
+  serverRef.current = serverClients;
 
   const mouseRef = useRef(getMouseDown);
   mouseRef.current = getMouseDown;
@@ -62,41 +79,53 @@ const Home: React.FC = () => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  // function getMousePos(canvas: HTMLCanvasElement, evt: any) {
-  //   const rect = canvas.getBoundingClientRect();
-  //   return {
-  //     x: evt.clientX - rect.left,
-  //     y: evt.clientY - rect.top,
-  //   };
-  // }
-
-  // function onMouseMove(canvas: HTMLCanvasElement, evt: any) {
-  //   const mousePos = getMousePos(canvas, evt);
-  //   redraw(mousePos.x, mousePos.y);
-  // }
+  const createCircle = (
+    context: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+    color: number,
+    name: string
+  ) => {
+    context.fillStyle = COLOR_ARRAY[color];
+    context.beginPath();
+    context.arc(x, y, size, 0, 2 * Math.PI);
+    context.fill();
+    context.stroke();
+    context.font = "18px Verdana";
+    context.fillStyle = "white";
+    context.textAlign = "center";
+    context.fillText(name, x, y + 10);
+  };
 
   const redraw = (x: number, y: number) => {
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    const ctx = canvas.getContext("2d");
+    const context = canvas.getContext("2d");
     setClientCircle({
       ...clientRef.current,
       posX: x,
       posY: y,
       time: Date.now(),
     });
-    setHasUpdated(true);
-    console.log(clientRef.current);
-    if (ctx) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = COLOR_ARRAY[clientRef.current.color];
-      ctx.beginPath();
-      ctx.arc(x, y, clientRef.current.size, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
-      ctx.font = "18px Verdana";
-      ctx.fillStyle = "white";
-      ctx.textAlign = "center";
-      ctx.fillText("stephen", x, y + 10);
+    if (context) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      createCircle(
+        context,
+        x,
+        y,
+        clientRef.current.size,
+        clientRef.current.color,
+        clientName
+      );
+      // Only need to process if more than 1 client connected
+      // The 1 client would be the single user which wouldn't get processed anyways
+      if (serverRef.current && serverRef.current.length > 1) {
+        serverRef.current.forEach((m: any) => {
+          if (m.uid !== clientRef.current.uid) {
+            createCircle(context, m.posX, m.posY, m.size, m.color, m.name);
+          }
+        });
+      }
     }
   };
 
@@ -108,7 +137,7 @@ const Home: React.FC = () => {
     canvas.width = rect.width * dpr;
     canvas.height = rect.height * dpr;
 
-    const ctx = canvas.getContext("2d");
+    const context = canvas.getContext("2d");
 
     const randX = getRndInteger(0, CANVAS_SIZE[0]);
     const randY = getRndInteger(0, CANVAS_SIZE[1] - 75);
@@ -117,6 +146,7 @@ const Home: React.FC = () => {
 
     setClientCircle({
       uid: uuid.v4(),
+      name: clientName,
       posX: randX,
       posY: randY,
       size: size,
@@ -125,19 +155,9 @@ const Home: React.FC = () => {
     });
     console.log("OK..", randX, randY, size);
 
-    if (ctx) {
-      ctx.scale(dpr, dpr);
-
-      ctx.fillStyle = COLOR_ARRAY[color];
-      ctx.beginPath();
-      ctx.arc(randX, randY, size, 0, 2 * Math.PI);
-      ctx.fill();
-      ctx.stroke();
-
-      ctx.font = "18px Verdana";
-      ctx.fillStyle = "white";
-      ctx.textAlign = "center";
-      ctx.fillText("stephen", randX, randY + 10);
+    if (context) {
+      context.scale(dpr, dpr);
+      createCircle(context, randX, randY, size, color, clientName);
     }
   };
 
@@ -167,6 +187,7 @@ const Home: React.FC = () => {
     canvas.width = CANVAS_SIZE[0];
     canvas.height = CANVAS_SIZE[1];
     redraw(clientRef.current.posX, clientRef.current.posY);
+    setHasUpdated(true);
 
     // window.addEventListener(
     //   "resize",
@@ -179,11 +200,13 @@ const Home: React.FC = () => {
 
     canvas.addEventListener("mousedown", (e) => {
       redraw(e.offsetX, e.offsetY);
+      setHasUpdated(true);
       setMouseDown(true);
     });
 
     canvas.addEventListener("mouseup", (e) => {
       redraw(e.offsetX, e.offsetY);
+      setHasUpdated(true);
       setMouseDown(false);
     });
 
@@ -192,6 +215,7 @@ const Home: React.FC = () => {
       (e) => {
         if (mouseRef.current) {
           redraw(e.offsetX, e.offsetY);
+          setHasUpdated(true);
         }
       },
       false
@@ -201,6 +225,7 @@ const Home: React.FC = () => {
       "touchmove",
       (e) => {
         handleMove(e);
+        setHasUpdated(true);
       },
       false
     );
@@ -217,49 +242,108 @@ const Home: React.FC = () => {
   };
 
   useEffect(() => {
-    const socket = socketIOClient(API_ENDPOINT);
-    setSocket(socket);
-    socket.on("date", (data: any) => {
-      setResponse(data);
-    });
+    if (!!clientName) {
+      const socket = socketIOClient(API_ENDPOINT);
+      setSocket(socket);
+      socket.on("date", (data: any) => {
+        setResponse(data);
+      });
+      socket.on("data", (data: any) => {
+        setServerClients(data);
+        redraw(clientRef.current.posX, clientRef.current.posY);
+      });
+      console.log("loading now");
+      // Call Load in timeout because we need Canvas to be created in DOM first
+      setTimeout(() => onLoad(), 500);
+      window.setInterval(() => sendData(), UPDATE_CLIENT_TIME);
+      return () => {
+        socket.disconnect();
+      };
+    }
+    // eslint-disable-next-line
+  }, [clientName]);
 
-    socket.on("data", (data: any) => {
-      console.log(data);
-    });
-
-    window.addEventListener("load", onLoad);
-    window.setInterval(() => sendData(), UPDATE_CLIENT_TIME);
-
-    return () => {
-      socket.disconnect();
-      window.removeEventListener("load", onLoad);
-    };
-  }, []);
+  const submitClientName = (data: any) => {
+    console.log("Submit", data);
+    if (!!data.clientName && data.clientName.trim().length > 1) {
+      console.log("OK");
+      setClientName(data.clientName);
+    }
+  };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Blank</IonTitle>
+          <IonTitle>Socket Demo</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent fullscreen scrollY={false}>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Blank</IonTitle>
+            <IonTitle size="large">Socket Demo</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <canvas
-          id="canvas"
-          width={CANVAS_SIZE[0]}
-          height={CANVAS_SIZE[1]}
-          className="styleCanvas"
-        ></canvas>
-        <p>
-          It's <time dateTime={response}>{response}</time>
-        </p>
-        {JSON.stringify(getTouches)}
-        {CANVAS_SIZE[0]} {CANVAS_SIZE[1]}
+        {!!clientName ? (
+          <>
+            <canvas
+              id="canvas"
+              width={CANVAS_SIZE[0]}
+              height={CANVAS_SIZE[1]}
+              className="styleCanvas"
+            ></canvas>
+            <p>
+              Server Time: <time dateTime={response}>{response}</time>
+            </p>
+            {JSON.stringify(getTouches)}
+            {CANVAS_SIZE[0]} {CANVAS_SIZE[1]}
+          </>
+        ) : (
+          <IonPopover
+            cssClass="popover-style"
+            isOpen={!!clientName ? false : true}
+            backdropDismiss={false}
+          >
+            <div className="popover-content">
+              <h1>Socket Demo</h1>
+              Enter a client username:
+              <form onSubmit={handleSubmit(submitClientName)}>
+                <IonInput
+                  autofocus={true}
+                  enterkeyhint="go"
+                  inputmode="text"
+                  maxlength={NAME_MAX_LENGTH}
+                  name="clientName"
+                  required={true}
+                  placeholder="Client username"
+                  mode="ios"
+                  onIonChange={(e) => {
+                    register("clientName");
+                    setValue("clientName", e.detail.value!);
+                    if (
+                      !!e.detail.value &&
+                      e.detail.value.trim().length > 1 &&
+                      e.detail.value.trim().length <= NAME_MAX_LENGTH
+                    ) {
+                      setSubmitDisabled(false);
+                    } else {
+                      setSubmitDisabled(true);
+                    }
+                  }}
+                ></IonInput>
+                <IonButton
+                  type="submit"
+                  color="primary"
+                  expand="block"
+                  mode="ios"
+                  disabled={disableRef.current}
+                >
+                  Connect
+                </IonButton>
+              </form>
+            </div>
+          </IonPopover>
+        )}
       </IonContent>
     </IonPage>
   );

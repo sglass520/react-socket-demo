@@ -3,3 +3,25 @@
   display: block;
   overflow: hidden;
 }
+
+.popover-style .popover-content {
+  --min-width: 320px !important;
+}
+
+.popover-content {
+  display: block;
+  padding: 1em;
+}
+
+.popover-content input[type="text"] {
+  border: 1px solid #ccc;
+  /* css 3 */
+  border-radius: 8px 8px 8px 8px;
+  /* mozilla */
+  -moz-border-radius: 8px 8px 8px 8px;
+  /* webkit */
+  -webkit-border-radius: 8px 8px 8px 8px;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  padding-left: 5px;
+}
