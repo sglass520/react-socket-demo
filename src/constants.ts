@@ -3,10 +3,11 @@ export const API_ENDPOINT = "http://192.168.1.12:4001";
 
 export const UPDATE_CLIENT_TIME = 100;
 
-export const CANVAS_SIZE = [window.innerWidth, window.innerHeight - 200];
+export const OFFSET_WIDTH = -6;
+export const OFFSET_HEIGHT = -200;
 
-export const MIN_CIRCLE_SIZE = 30;
-export const MAX_CIRCLE_SIZE = 75;
+export const MIN_CIRCLE_SIZE = 50;
+export const MAX_CIRCLE_SIZE = 125;
 
 export const NAME_MAX_LENGTH = 8;
 

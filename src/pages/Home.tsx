@@ -14,12 +14,13 @@ import "./Home.css";
 
 import {
   API_ENDPOINT,
-  CANVAS_SIZE,
   COLOR_ARRAY,
   MIN_CIRCLE_SIZE,
   MAX_CIRCLE_SIZE,
   UPDATE_CLIENT_TIME,
   NAME_MAX_LENGTH,
+  OFFSET_WIDTH,
+  OFFSET_HEIGHT,
 } from "../constants";
 import uuid from "uuid";
 import socketIOClient from "socket.io-client";
@@ -128,18 +129,18 @@ const Home: React.FC = () => {
     }
   };
 
-  const createClientCircle = () => {
+  const createClientCircle = (windowX: number, windowY: number) => {
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    // const dpr = window.devicePixelRatio || 1;
+    // const rect = canvas.getBoundingClientRect();
+    // canvas.width = rect.width * dpr;
+    // canvas.height = rect.height * dpr;
 
     const context = canvas.getContext("2d");
 
-    const randX = getRndInteger(0, CANVAS_SIZE[0]);
-    const randY = getRndInteger(0, CANVAS_SIZE[1] - 75);
+    const randX = getRndInteger(0, windowX);
+    const randY = getRndInteger(0, windowY - 75);
     const color = getRndInteger(0, COLOR_ARRAY.length - 1);
     const size = getRndInteger(MIN_CIRCLE_SIZE, MAX_CIRCLE_SIZE);
 
@@ -155,12 +156,12 @@ const Home: React.FC = () => {
     console.log("OK..", randX, randY, size);
 
     if (context) {
-      context.scale(dpr, dpr);
+      //context.scale(dpr, dpr);
       createCircle(context, randX, randY, size, color, clientName);
     }
   };
 
-  function handleMove(e: any) {
+  function handleMove(e: any, windowX: number, windowY: number) {
     if (
       e.type === "touchstart" ||
       e.type === "touchmove" ||
@@ -172,19 +173,20 @@ const Home: React.FC = () => {
       const x = touch.pageX;
       const y = touch.pageY - 115;
       // Prevent being moved outside the canvas
-      if (y >= 0 && y <= CANVAS_SIZE[1] && x >= 0 && x <= CANVAS_SIZE[0]) {
+      if (y >= 0 && y <= windowY && x >= 0 && x <= windowX) {
         redraw(Math.floor(x), Math.floor(y));
       }
     }
   }
 
   const onLoad = () => {
-    createClientCircle();
+    createClientCircle(
+      window.innerWidth + OFFSET_WIDTH,
+      window.innerHeight + OFFSET_HEIGHT
+    );
 
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
-    canvas.width = CANVAS_SIZE[0];
-    canvas.height = CANVAS_SIZE[1];
     redraw(clientRef.current.posX, clientRef.current.posY);
     setHasUpdated(true);
 
@@ -192,7 +194,6 @@ const Home: React.FC = () => {
     //   "resize",
     //   () => {
     //     console.log("resizing");
-    //     createClientCircle();
     //   },
     //   false
     // );
@@ -223,7 +224,11 @@ const Home: React.FC = () => {
     canvas.addEventListener(
       "touchmove",
       (e) => {
-        handleMove(e);
+        handleMove(
+          e,
+          window.innerWidth + OFFSET_WIDTH,
+          window.innerHeight + OFFSET_HEIGHT
+        );
         setHasUpdated(true);
       },
       false
@@ -287,8 +292,8 @@ const Home: React.FC = () => {
           <>
             <canvas
               id="canvas"
-              width={CANVAS_SIZE[0]}
-              height={CANVAS_SIZE[1]}
+              width={window.innerWidth + OFFSET_WIDTH}
+              height={window.innerHeight + OFFSET_HEIGHT}
               className="styleCanvas"
             ></canvas>
             <p>
