@@ -46,7 +46,6 @@ const IState = {
 
 const Home: React.FC = () => {
   const [response, setResponse] = useState<any>();
-  const [getTouches, setTouches] = useState<any>();
   const [clientName, setClientName] = useState<string>("");
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
   const [socket, setSocket] = useState<SocketIOClient.Socket>();
@@ -168,13 +167,13 @@ const Home: React.FC = () => {
       e.type === "touchend" ||
       e.type === "touchcancel"
     ) {
-      var evt = typeof e.originalEvent === "undefined" ? e : e.originalEvent;
-      var touch = evt.touches[0] || evt.changedTouches[0];
-      var x = touch.pageX;
-      var y = touch.pageY - 115;
+      const evt = typeof e.originalEvent === "undefined" ? e : e.originalEvent;
+      const touch = evt.touches[0] || evt.changedTouches[0];
+      const x = touch.pageX;
+      const y = touch.pageY - 115;
+      // Prevent being moved outside the canvas
       if (y >= 0 && y <= CANVAS_SIZE[1] && x >= 0 && x <= CANVAS_SIZE[0]) {
-        setTouches({ x: x, y: y });
-        redraw(x, y);
+        redraw(Math.floor(x), Math.floor(y));
       }
     }
   }
@@ -295,8 +294,6 @@ const Home: React.FC = () => {
             <p>
               Server Time: <time dateTime={response}>{response}</time>
             </p>
-            {JSON.stringify(getTouches)}
-            {CANVAS_SIZE[0]} {CANVAS_SIZE[1]}
           </>
         ) : (
           <IonPopover
