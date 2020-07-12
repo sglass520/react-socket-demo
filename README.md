@@ -1,6 +1,20 @@
+# Ionc React Sockets Demo
+
+# Client
+
 ```
-npm i --save socket.io-client
-npm i --save @types/socket.io-client
-npm i --save uuidv4
-npm i --save react-hook-form
+npm install --save socket.io-client
+npm install --save @types/socket.io-client
+npm install --save uuidv4
+npm install --save react-hook-form
+```
+
+# Server
+
+```
+npm init
+npm install express --save
+npm install socket.io --save
+npm install -g nodemon --save
+npx nodemon app.js
 ```

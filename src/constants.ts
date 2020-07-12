@@ -1,4 +1,5 @@
-export const API_ENDPOINT = "http://10.0.0.102:4001/";
+//export const API_ENDPOINT = "http://10.0.0.102:4001/";
+export const API_ENDPOINT = "http://192.168.1.12:4001";
 
 export const UPDATE_CLIENT_TIME = 100;
 
