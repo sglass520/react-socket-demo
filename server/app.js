@@ -18,7 +18,7 @@ setInterval(() => emitDate(io), 1000);
 setInterval(() => updateClients(io), 100);
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log(`New client connected (${socket.id})`);
 
   socket.on("update", (data) => {
     data.socket = socket.id;
@@ -33,11 +33,13 @@ io.on("connection", (socket) => {
     } else {
       connections.push(data);
     }
-    console.log("Connections:", connections);
+    if (process.env.VERBOSE) {
+      console.log("Connections:", connections);
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected");
+    console.log(`Client disconnected (${socket.id})`);
     if (connections.length > 0 && connections[0] !== undefined) {
       var index = connections.findIndex((x) => x.socket === socket.id);
       if (index !== -1) {
@@ -45,7 +47,9 @@ io.on("connection", (socket) => {
         connections.splice(index, 1);
       }
     }
-    console.log("connections", connections);
+    if (process.env.VERBOSE) {
+      console.log("connections", connections);
+    }
   });
 });
 

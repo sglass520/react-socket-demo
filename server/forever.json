@@ -1,0 +1,13 @@
+{
+  "id": "socket-demo",
+  "max": 10,
+  "watch": true,
+  "append": true,
+  "script": "app.js",
+  "watchIgnore": true,
+  "minUptime": 1000,
+  "spinSleepTime": 1000,
+  "sourceDir": "/opt/socket-demo-server",
+  "workingDir": "/opt/socket-demo-server",
+  "logFile": "/opt/socket-demo-server/forever.log"
+}
