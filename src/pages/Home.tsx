@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import "./Home.css";
 
 import {
-  API_ENDPOINT,
+  SOCKET_ENDPOINT,
   COLOR_ARRAY,
   MIN_CIRCLE_SIZE,
   MAX_CIRCLE_SIZE,
@@ -21,8 +21,9 @@ import {
   NAME_MAX_LENGTH,
   OFFSET_WIDTH,
   OFFSET_HEIGHT,
+  CIRCLE_TEXT_FONT,
+  CIRCLE_TEXT_COLOR,
 } from "../constants";
-import uuid from "uuid";
 import socketIOClient from "socket.io-client";
 
 interface ClientProperties {
@@ -92,8 +93,8 @@ const Home: React.FC = () => {
     context.arc(x, y, size, 0, 2 * Math.PI);
     context.fill();
     context.stroke();
-    context.font = "18px Verdana";
-    context.fillStyle = "white";
+    context.font = CIRCLE_TEXT_FONT;
+    context.fillStyle = CIRCLE_TEXT_COLOR;
     context.textAlign = "center";
     context.fillText(name, x, y + 10);
   };
@@ -131,12 +132,6 @@ const Home: React.FC = () => {
 
   const createClientCircle = (windowX: number, windowY: number) => {
     const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-
-    // const dpr = window.devicePixelRatio || 1;
-    // const rect = canvas.getBoundingClientRect();
-    // canvas.width = rect.width * dpr;
-    // canvas.height = rect.height * dpr;
-
     const context = canvas.getContext("2d");
 
     const randX = getRndInteger(0, windowX);
@@ -145,7 +140,7 @@ const Home: React.FC = () => {
     const size = getRndInteger(MIN_CIRCLE_SIZE, MAX_CIRCLE_SIZE);
 
     setClientCircle({
-      uid: uuid.v4(),
+      ...clientRef.current,
       name: clientName,
       posX: randX,
       posY: randY,
@@ -190,13 +185,8 @@ const Home: React.FC = () => {
     redraw(clientRef.current.posX, clientRef.current.posY);
     setHasUpdated(true);
 
-    // window.addEventListener(
-    //   "resize",
-    //   () => {
-    //     console.log("resizing");
-    //   },
-    //   false
-    // );
+    // Start sending data to server
+    window.setInterval(() => sendData(), UPDATE_CLIENT_TIME);
 
     canvas.addEventListener("mousedown", (e) => {
       redraw(e.offsetX, e.offsetY);
@@ -247,19 +237,30 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     if (!!clientName) {
-      const socket = socketIOClient(API_ENDPOINT);
+      const socket = socketIOClient(SOCKET_ENDPOINT);
       setSocket(socket);
-      socket.on("date", (data: any) => {
-        setResponse(data);
+
+      socket.on("connected", (id: string) => {
+        console.log("connected");
+
+        setClientCircle({
+          ...clientRef.current,
+          uid: id,
+          time: Date.now(),
+        });
+
+        socket.on("date", (data: any) => {
+          setResponse(data);
+        });
+
+        socket.on("data", (data: any) => {
+          setServerClients(data);
+          redraw(clientRef.current.posX, clientRef.current.posY);
+        });
+
+        // Call Load in timeout because we need Canvas to be created in DOM first
+        setTimeout(() => onLoad(), 500);
       });
-      socket.on("data", (data: any) => {
-        setServerClients(data);
-        redraw(clientRef.current.posX, clientRef.current.posY);
-      });
-      console.log("loading now");
-      // Call Load in timeout because we need Canvas to be created in DOM first
-      setTimeout(() => onLoad(), 500);
-      window.setInterval(() => sendData(), UPDATE_CLIENT_TIME);
       return () => {
         socket.disconnect();
       };

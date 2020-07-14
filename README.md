@@ -113,3 +113,57 @@ sudo chown bitnami:bitnami /opt/socket-demo-server
 sudo npm install -g forever
 forever start /opt/socket-demo-server/forever.json
 ```
+
+## Debian 10 Setup
+
+```
+adduser stephen
+usermod -aG sudo stephen
+cp -r ~/.ssh /home/stephen
+chown -R stephen:stephen /home/stephen/.ssh
+```
+
+Remote root ssh keys when completed and verified.
+
+[Reference: Digital Ocean](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-debian-10)
+
+### 1. Install Apache
+
+```
+sudo apt-get update
+sudo apt-get install apache2
+```
+
+### 2. Install PHP, MySQL
+
+```
+sudo apt-get install mariadb-server
+mysql_secure_installation
+sudo apt-get install php php-mysql libapache2-mod-php
+```
+
+### 3. Create Virtual Host
+
+```
+mkdir /var/www/cloud.stephen.glass
+cd /etc/apache2/sites-available
+cp 000-default.conf cloud.conf
+```
+
+Modify `cloud.conf` to reflect new directory and domain.
+
+```
+sudo a2ensite cloud.conf
+sudo a2dissite 000-default.conf
+sudo apach2ctl configtest
+sudo systemctl restart apache2
+```
+
+### 4. Install Certificate
+
+```
+sudo apt-get install certbot python-certbot-apache
+sudo certbot --apache
+```
+
+[Reference: Digital Ocean](https://www.digitalocean.com/community/tutorials/how-to-install-the-apache-web-server-on-debian-10)

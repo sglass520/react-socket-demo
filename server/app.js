@@ -1,6 +1,12 @@
+const fs = require("fs");
 const express = require("express");
-const http = require("http");
+const https = require("https");
 const socketIo = require("socket.io");
+
+const options = {
+  key: fs.readFileSync("/etc/letsencrypt/live/cloud.stephen.glass/privkey.pem"),
+  cert: fs.readFileSync("/etc/letsencrypt/live/cloud.stephen.glass/cert.pem"),
+};
 
 const port = process.env.PORT || 4001;
 const index = require("./routes/index");
@@ -8,7 +14,7 @@ const index = require("./routes/index");
 const app = express();
 app.use(index);
 
-const server = http.createServer(app);
+const server = https.createServer(options, app);
 
 const io = socketIo(server);
 
@@ -19,6 +25,7 @@ setInterval(() => updateClients(io), 100);
 
 io.on("connection", (socket) => {
   console.log(`New client connected (${socket.id})`);
+  socket.emit("connected", socket.id);
 
   socket.on("update", (data) => {
     data.socket = socket.id;

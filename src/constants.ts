@@ -1,5 +1,4 @@
-//export const API_ENDPOINT = "http://10.0.0.102:4001/";
-export const API_ENDPOINT = "http://35.193.11.71:4001";
+export const SOCKET_ENDPOINT = "https://cloud.stephen.glass:4001";
 
 export const UPDATE_CLIENT_TIME = 100;
 
@@ -10,6 +9,9 @@ export const MIN_CIRCLE_SIZE = 50;
 export const MAX_CIRCLE_SIZE = 125;
 
 export const NAME_MAX_LENGTH = 8;
+
+export const CIRCLE_TEXT_FONT = "18px Verdana";
+export const CIRCLE_TEXT_COLOR = "white";
 
 export const COLOR_ARRAY = [
   "#FF6633",
