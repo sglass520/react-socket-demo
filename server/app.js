@@ -16,12 +16,14 @@ app.use(index);
 
 const server = https.createServer(options, app);
 
-const io = socketIo(server);
+const io = socketIo(server, {
+  origins: "cloud.stephen.glass:*",
+});
 
 var connections = [];
 
 setInterval(() => emitDate(io), 1000);
-setInterval(() => updateClients(io), 100);
+setInterval(() => updateClients(io), 50);
 
 io.on("connection", (socket) => {
   console.log(`New client connected (${socket.id})`);

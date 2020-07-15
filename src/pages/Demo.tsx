@@ -7,10 +7,16 @@ import {
   IonButton,
   IonPopover,
   IonInput,
+  IonToggle,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonIcon,
 } from "@ionic/react";
 import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { log } from "../log";
+import { moon, timeOutline } from "ionicons/icons";
 import "./Demo.css";
 
 import {
@@ -298,9 +304,26 @@ const Demo: React.FC = () => {
               height={window.innerHeight + OFFSET_HEIGHT}
               className="styleCanvas"
             ></canvas>
-            <p>
-              Server Time: <time dateTime={response}>{response}</time>
-            </p>
+            <IonList>
+              <IonItem>
+                <IonIcon icon={timeOutline} className="list-icon" />
+                <IonLabel position="fixed" className="label">
+                  Server Time
+                </IonLabel>
+                <time dateTime={response}>{response}</time>
+              </IonItem>
+              <IonItem>
+                <IonIcon icon={moon} className="list-icon" />
+                <IonLabel position="fixed" className="label">
+                  Dark Mode
+                </IonLabel>
+                <IonToggle
+                  checked={document.body.classList.contains("dark")}
+                  onIonChange={() => document.body.classList.toggle("dark")}
+                  name="darkMode"
+                />
+              </IonItem>
+            </IonList>
           </>
         ) : (
           <IonPopover
@@ -349,6 +372,8 @@ const Demo: React.FC = () => {
           </IonPopover>
         )}
       </IonContent>
+
+      <div className="footer">https://stephen.glass</div>
     </IonPage>
   );
 };

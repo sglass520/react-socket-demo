@@ -1,10 +1,10 @@
 export const DEBUG = false;
 export const SOCKET_ENDPOINT = "https://cloud.stephen.glass:4001";
 
-export const UPDATE_CLIENT_TIME = 100;
+export const UPDATE_CLIENT_TIME = 50;
 
 export const OFFSET_WIDTH = -6;
-export const OFFSET_HEIGHT = -200;
+export const OFFSET_HEIGHT = -250;
 
 export const MIN_CIRCLE_SIZE = 50;
 export const MAX_CIRCLE_SIZE = 125;
