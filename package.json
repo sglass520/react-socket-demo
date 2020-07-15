@@ -1,6 +1,7 @@
 {
   "name": "socket-game",
   "version": "0.0.1",
+  "homepage": "/sockets/",
   "private": true,
   "dependencies": {
     "@capacitor/core": "2.2.1",
@@ -50,5 +51,5 @@
   "devDependencies": {
     "@capacitor/cli": "2.2.1"
   },
-  "description": "An Ionic project"
+  "description": "React Socket Demo"
 }

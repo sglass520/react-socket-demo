@@ -10,7 +10,8 @@ import {
 } from "@ionic/react";
 import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
-import "./Home.css";
+import { log } from "../log";
+import "./Demo.css";
 
 import {
   SOCKET_ENDPOINT,
@@ -46,7 +47,7 @@ const IState = {
   time: Date.now(),
 };
 
-const Home: React.FC = () => {
+const Demo: React.FC = () => {
   const [response, setResponse] = useState<any>();
   const [clientName, setClientName] = useState<string>("");
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
@@ -148,7 +149,7 @@ const Home: React.FC = () => {
       color: color,
       time: Date.now(),
     });
-    console.log("OK..", randX, randY, size);
+    log("OK..", randX, randY, size);
 
     if (context) {
       //context.scale(dpr, dpr);
@@ -227,7 +228,7 @@ const Home: React.FC = () => {
 
   const sendData = () => {
     if (updatedRef.current) {
-      console.log(updatedRef.current, "updating...");
+      log(updatedRef.current, "updating...");
       if (socketRef.current) {
         socketRef.current.emit("update", clientRef.current);
       }
@@ -241,7 +242,7 @@ const Home: React.FC = () => {
       setSocket(socket);
 
       socket.on("connected", (id: string) => {
-        console.log("connected");
+        log("connected");
 
         setClientCircle({
           ...clientRef.current,
@@ -269,9 +270,9 @@ const Home: React.FC = () => {
   }, [clientName]);
 
   const submitClientName = (data: any) => {
-    console.log("Submit", data);
+    log("Submit", data);
     if (!!data.clientName && data.clientName.trim().length > 1) {
-      console.log("OK");
+      log("OK");
       setClientName(data.clientName);
     }
   };
@@ -352,4 +353,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Demo;

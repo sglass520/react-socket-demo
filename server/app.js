@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
     } else {
       connections.push(data);
     }
-    if (process.env.VERBOSE) {
+    if (process.env.DEBUG) {
       console.log("Connections:", connections);
     }
   });
@@ -54,7 +54,7 @@ io.on("connection", (socket) => {
         connections.splice(index, 1);
       }
     }
-    if (process.env.VERBOSE) {
+    if (process.env.DEBUG) {
       console.log("connections", connections);
     }
   });

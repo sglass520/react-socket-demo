@@ -1,3 +1,4 @@
+export const DEBUG = false;
 export const SOCKET_ENDPOINT = "https://cloud.stephen.glass:4001";
 
 export const UPDATE_CLIENT_TIME = 100;
