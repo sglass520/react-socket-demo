@@ -1,7 +1,5 @@
 {
-  "name": "socket-game",
-  "integrations": {
-    "capacitor": {}
-  },
+  "name": "socket-demo",
+  "integrations": {},
   "type": "react"
 }
