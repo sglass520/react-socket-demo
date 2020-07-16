@@ -1,4 +1,4 @@
-.styleCanvas {
+.style-canvas {
   border: 2px solid var(--ion-color-medium-shade);
   display: block;
   overflow: hidden;
@@ -26,15 +26,23 @@
   padding-left: 5px;
 }
 
-.label {
-  min-width: 60% !important;
+.time {
+  padding-left: 0.5em;
+}
+
+.item-content {
   max-width: 60% !important;
+  min-width: 60% !important;
+  text-align: right;
+  float: right;
 }
 
 @media only screen and (min-width: 768px) {
-  .label {
-    min-width: 20% !important;
-    max-width: 20% !important;
+  .item-content {
+    max-width: 75% !important;
+    min-width: 75% !important;
+    text-align: left;
+    float: left;
   }
 }
 

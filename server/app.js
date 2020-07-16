@@ -3,27 +3,40 @@ const express = require("express");
 const https = require("https");
 const socketIo = require("socket.io");
 
+// File location of SSL private key file
+const SSL_KEY = "/etc/letsencrypt/live/cloud.stephen.glass/privkey.pem";
+
+// File location of SSL certificate file
+const SSL_CERT = "/etc/letsencrypt/live/cloud.stephen.glass/cert.pem";
+
+// List of trusted origins to allow socket connections from
+const ORIGINS = "cloud.stephen.glass:*";
+
+// Port to listen on for incoming socket connections
+const PORT = process.env.PORT || 4001;
+
+// Frequency in milliseconds to update clients with server time
+const INTERVAL_DATE = 1000;
+
+// Frequency in milliseconds to update clients other client info
+const INTERVAL_CLIENTS = 1000;
+
 const options = {
-  key: fs.readFileSync("/etc/letsencrypt/live/cloud.stephen.glass/privkey.pem"),
-  cert: fs.readFileSync("/etc/letsencrypt/live/cloud.stephen.glass/cert.pem"),
+  key: fs.readFileSync(SSL_KEY),
+  cert: fs.readFileSync(SSL_CERT),
 };
 
-const port = process.env.PORT || 4001;
-const index = require("./routes/index");
-
 const app = express();
-app.use(index);
-
 const server = https.createServer(options, app);
 
 const io = socketIo(server, {
-  origins: "cloud.stephen.glass:*",
+  origins: ORIGINS,
 });
 
 var connections = [];
 
-setInterval(() => emitDate(io), 1000);
-setInterval(() => updateClients(io), 50);
+setInterval(() => emitDate(io), INTERVAL_DATE);
+setInterval(() => updateClients(io), INTERVAL_CLIENTS);
 
 io.on("connection", (socket) => {
   console.log(`New client connected (${socket.id})`);
@@ -74,4 +87,4 @@ const updateClients = (socket) => {
   }
 };
 
-server.listen(port, () => console.log(`Listening on port ${port}`));
+server.listen(PORT, () => console.log(`Listening on port ${PORT}`));

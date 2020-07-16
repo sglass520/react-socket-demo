@@ -12,11 +12,12 @@ import {
   IonItem,
   IonLabel,
   IonIcon,
+  IonText,
 } from "@ionic/react";
 import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
-import { log } from "../log";
 import { moon, timeOutline } from "ionicons/icons";
+import { log } from "../log";
 import "./Demo.css";
 
 import {
@@ -30,6 +31,9 @@ import {
   OFFSET_HEIGHT,
   CIRCLE_TEXT_FONT,
   CIRCLE_TEXT_COLOR,
+  FOOTER_TEXT,
+  JOIN_TITLE,
+  JOIN_SUBTITLE,
 } from "../constants";
 import socketIOClient from "socket.io-client";
 
@@ -57,7 +61,7 @@ const Demo: React.FC = () => {
   const [response, setResponse] = useState<any>();
   const [clientName, setClientName] = useState<string>("");
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
-  const [socket, setSocket] = useState<SocketIOClient.Socket>();
+  const [getSocket, setSocket] = useState<SocketIOClient.Socket>();
   const [getMouseDown, setMouseDown] = useState<boolean>(false);
   const [serverClients, setServerClients] = useState<any>(undefined);
   const [clientCircle, setClientCircle] = useState<ClientProperties>(IState);
@@ -80,8 +84,8 @@ const Demo: React.FC = () => {
   const updatedRef = useRef(hasUpdated);
   updatedRef.current = hasUpdated;
 
-  const socketRef = useRef(socket);
-  socketRef.current = socket;
+  const socketRef = useRef(getSocket);
+  socketRef.current = getSocket;
 
   function getRndInteger(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -287,13 +291,13 @@ const Demo: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Socket Demo</IonTitle>
+          <IonTitle>{JOIN_TITLE}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen scrollY={false}>
         <IonHeader collapse="condense">
           <IonToolbar>
-            <IonTitle size="large">Socket Demo</IonTitle>
+            <IonTitle size="large">{JOIN_TITLE}</IonTitle>
           </IonToolbar>
         </IonHeader>
         {!!clientName ? (
@@ -302,26 +306,26 @@ const Demo: React.FC = () => {
               id="canvas"
               width={window.innerWidth + OFFSET_WIDTH}
               height={window.innerHeight + OFFSET_HEIGHT}
-              className="styleCanvas"
+              className="style-canvas"
             ></canvas>
             <IonList>
               <IonItem>
                 <IonIcon icon={timeOutline} className="list-icon" />
-                <IonLabel position="fixed" className="label">
-                  Server Time
-                </IonLabel>
-                <time dateTime={response}>{response}</time>
+                <IonLabel>Server Time</IonLabel>
+                <IonText className="item-content time">
+                  <time dateTime={response}>{response}</time>
+                </IonText>
               </IonItem>
               <IonItem>
                 <IonIcon icon={moon} className="list-icon" />
-                <IonLabel position="fixed" className="label">
-                  Dark Mode
-                </IonLabel>
-                <IonToggle
-                  checked={document.body.classList.contains("dark")}
-                  onIonChange={() => document.body.classList.toggle("dark")}
-                  name="darkMode"
-                />
+                <IonLabel>Dark Mode</IonLabel>
+                <IonText className="item-content">
+                  <IonToggle
+                    checked={document.body.classList.contains("dark")}
+                    onIonChange={() => document.body.classList.toggle("dark")}
+                    name="darkMode"
+                  />
+                </IonText>
               </IonItem>
             </IonList>
           </>
@@ -332,8 +336,8 @@ const Demo: React.FC = () => {
             backdropDismiss={false}
           >
             <div className="popover-content">
-              <h1>Socket Demo</h1>
-              Enter a client username:
+              <h1>{JOIN_TITLE}</h1>
+              {JOIN_SUBTITLE}
               <form onSubmit={handleSubmit(submitClientName)}>
                 <IonInput
                   autofocus={true}
@@ -373,7 +377,7 @@ const Demo: React.FC = () => {
         )}
       </IonContent>
 
-      <div className="footer">https://stephen.glass</div>
+      <div className="footer">{FOOTER_TEXT}</div>
     </IonPage>
   );
 };
