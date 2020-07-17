@@ -1,5 +1,5 @@
 export const DEBUG = false;
-export const SOCKET_ENDPOINT = "https://cloud.stephen.glass:4001";
+export const SOCKET_ENDPOINT = "https://hostname:4001";
 export const FOOTER_TEXT = "https://stephen.glass";
 export const JOIN_TITLE = "Socket Demo";
 export const JOIN_SUBTITLE = "Enter a client username:";

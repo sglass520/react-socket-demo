@@ -4,13 +4,13 @@ const https = require("https");
 const socketIo = require("socket.io");
 
 // File location of SSL private key file
-const SSL_KEY = "/etc/letsencrypt/live/cloud.stephen.glass/privkey.pem";
+const SSL_KEY = "/etc/letsencrypt/live/../privkey.pem";
 
 // File location of SSL certificate file
-const SSL_CERT = "/etc/letsencrypt/live/cloud.stephen.glass/cert.pem";
+const SSL_CERT = "/etc/letsencrypt/live/../cert.pem";
 
 // List of trusted origins to allow socket connections from
-const ORIGINS = "cloud.stephen.glass:*";
+const ORIGINS = "hostname.com:*";
 
 // Port to listen on for incoming socket connections
 const PORT = process.env.PORT || 4001;
