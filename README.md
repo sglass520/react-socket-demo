@@ -77,3 +77,7 @@ sudo node app.js
 npm install -g forever
 sudo forever forever.json
 ```
+
+## Notes
+
+- View [Debian 10 Server Setup](SERVER.md) example guide
